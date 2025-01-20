@@ -6,6 +6,13 @@ function isValidHTMLTag(nodeName) {
   var validTagPattern = /^[a-zA-Z][a-zA-Z0-9]*$/;
   return validTagPattern.test(nodeName);
 }
+function obliterateDIDOMI() {
+  const badNodes = Array.from(document.querySelectorAll('[class^="didomi"]'))
+  if (badNodes.length) {
+    document.getElementById('didomi-host').remove()
+    document.body.classList.remove('didomi-popup-open') 
+  }
+}
 function checkChildNode (child) {
   if (isValidHTMLTag(child.nodeName) && child.localName !== 'script' && child.localName !== 'style' && child.localName !== 'img' && child.localName !== 'iframe') {
     const elementRect = child.getBoundingClientRect();
@@ -67,10 +74,10 @@ const callback = (mutationList, observer) => {
 
 // Create an observer instance linked to the callback function
 const observer = new MutationObserver(callback);
-
 observer.observe(targetNode, config);
 const bodyChildren = Array.from(document.body.children)
 bodyChildren.forEach(child => checkChildNode(child))
+obliterateDIDOMI()
 checkBodyAndParent()
 setTimeout(() => {
   observer.disconnect()
