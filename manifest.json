@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Remove content blocker",
-  "version": "1.5",
+  "version": "1.6",
   "description": "This awesome extension will try to remove every content blocker from pages",
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
