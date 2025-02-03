@@ -6,12 +6,16 @@ function isValidHTMLTag(nodeName) {
   var validTagPattern = /^[a-zA-Z][a-zA-Z0-9]*$/;
   return validTagPattern.test(nodeName);
 }
-function obliterateDIDOMI() {
-  const badNodes = Array.from(document.querySelectorAll('[class^="didomi"]'))
-  if (badNodes.length) {
-    document.getElementById('didomi-host').remove()
-    document.body.classList.remove('didomi-popup-open') 
-  }
+async function obliterateDIDOMI() {
+  const promise = new Promise((resolve, reject) => {
+    const badNodes = Array.from(document.querySelectorAll('[class^="didomi"]'))
+    if (badNodes.length) {
+      document.getElementById('didomi-host').remove()
+      document.body.classList.remove('didomi-popup-open')
+    }
+    resolve()
+  })
+  return promise
 }
 function checkChildNode (child) {
   if (isValidHTMLTag(child.nodeName) && child.localName !== 'script' && child.localName !== 'style' && child.localName !== 'img' && child.localName !== 'iframe') {
@@ -58,28 +62,31 @@ function checkBodyAndParent () {
 }
 // Callback function to execute when mutations are observed
 const callback = (mutationList, observer) => {
-  for (const mutation of mutationList) {
-    if (mutation.type === "attributes") {
-      if (mutation.target === targetNode && mutation.attributeName === 'style') {
-        checkBodyAndParent()
-      }
-    } else {
-      if (mutation.addedNodes.length) {
-        const nodesArray = Array.from(mutation.addedNodes)
-        nodesArray.forEach(child => checkChildNode(child))
+  new Promise((resolve, reject) => {
+    for (const mutation of mutationList) {
+      if (mutation.type === "attributes") {
+        if (mutation.target === targetNode && mutation.attributeName === 'style') {
+          checkBodyAndParent()
+        }
+      } else {
+        if (mutation.addedNodes.length) {
+          const nodesArray = Array.from(mutation.addedNodes)
+          nodesArray.forEach(child => checkChildNode(child))
+        }
       }
     }
-  }
+    resolve()
+  })
 };
 
-// Create an observer instance linked to the callback function
+
+await obliterateDIDOMI()
+await checkBodyAndParent()
+
 const observer = new MutationObserver(callback);
 observer.observe(targetNode, config);
 const bodyChildren = Array.from(document.body.children)
 bodyChildren.forEach(child => checkChildNode(child))
-obliterateDIDOMI()
-checkBodyAndParent()
 setTimeout(() => {
-  observer.disconnect()
-  console.log('Disconnecting')
+observer.disconnect()
 }, 5000)
