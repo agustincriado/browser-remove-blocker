@@ -78,15 +78,16 @@ const callback = (mutationList, observer) => {
     resolve()
   })
 };
-
-
-await obliterateDIDOMI()
-await checkBodyAndParent()
-
-const observer = new MutationObserver(callback);
-observer.observe(targetNode, config);
-const bodyChildren = Array.from(document.body.children)
-bodyChildren.forEach(child => checkChildNode(child))
-setTimeout(() => {
-observer.disconnect()
-}, 5000)
+async function init() {
+  await obliterateDIDOMI()
+  await checkBodyAndParent()
+  
+  const observer = new MutationObserver(callback);
+  observer.observe(targetNode, config);
+  const bodyChildren = Array.from(document.body.children)
+  bodyChildren.forEach(child => checkChildNode(child))
+  setTimeout(() => {
+  observer.disconnect()
+  }, 5000)
+}
+init()
